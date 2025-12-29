@@ -448,7 +448,7 @@
       <div class="input-grid">
         <div class="input-group">
           <label>Min Viewport (px)</label>
-          <input id="minVW" type="number" value="420">
+          <input id="minVW" type="number" value="320">
         </div>
         <div class="input-group">
           <label>Max Viewport (px)</label>
@@ -456,11 +456,11 @@
         </div>
         <div class="input-group">
           <label>Min Value (px)</label>
-          <input id="minSize" type="number" value="16">
+          <input id="minSize" type="number" value="32" min="0">
         </div>
         <div class="input-group">
           <label>Max Value (px)</label>
-          <input id="maxSize" type="number" value="48">
+          <input id="maxSize" type="number" value="48" min="10">
         </div>
       </div>
 
@@ -525,7 +525,6 @@
 
 <script>
 const inputs = document.querySelectorAll('input[type="number"]');
-inputs.forEach(el => el.addEventListener('input', updateClamp));
 
 const radioButtons = document.querySelectorAll('input[name="previewType"]');
 radioButtons.forEach(el => el.addEventListener('change', updatePreview));
@@ -543,6 +542,29 @@ const copyBtn = document.getElementById('copyBtn');
 
 let currentClampValue = '';
 
+// Golden Ratio Rule function
+function getMobileSize(desktopPx) {
+  const minSize = 10;
+  let reduction;
+  
+  if (desktopPx >= 60) {
+    reduction = 0.40; // Hero: 40%
+  } else if (desktopPx >= 40) {
+    reduction = 0.30; // Large headings: 30%
+  } else if (desktopPx >= 28) {
+    reduction = 0.25; // Medium headings: 25%
+  } else if (desktopPx >= 20) {
+    reduction = 0.20; // Small headings: 20%
+  } else if (desktopPx >= 16) {
+    reduction = 0.10; // Body: 10%
+  } else {
+    reduction = 0.05; // Small: 5%
+  }
+  
+  const mobileSize = Math.round(desktopPx * (1 - reduction));
+  return Math.max(mobileSize, minSize);
+}
+
 function updateSliderRange() {
   const minVW = +minVWEl.value;
   const maxVW = +maxVWEl.value;
@@ -559,8 +581,13 @@ function updateClamp() {
   const minPx = +minSizeEl.value;
   const maxPx = +maxSizeEl.value;
 
+  // Check if values are valid numbers
+  if (!minVW || !maxVW || !minPx || !maxPx) {
+    return; // Don't show error, just wait for valid input
+  }
+
   if (minVW >= maxVW || minPx >= maxPx) {
-    resultEl.innerHTML = '<span class="error-message">⚠ Invalid: Min must be less than Max</span>';
+    resultEl.innerHTML = '<span class="error-message">[ERROR] Invalid parameters: Min must be < Max</span>';
     return;
   }
 
@@ -588,6 +615,8 @@ function updatePreview() {
   const minPx = +minSizeEl.value;
   const maxPx = +maxSizeEl.value;
   
+  if (!minVW || !maxVW || !minPx || !maxPx) return;
+  
   const slope = (maxPx - minPx) / (maxVW - minVW);
   const calculatedPx = Math.max(minPx, Math.min(maxPx, minPx + slope * (currentViewport - minVW)));
   const calculatedRem = calculatedPx / 16;
@@ -595,7 +624,6 @@ function updatePreview() {
   previewEl.className = '';
   previewEl.style = '';
   
-  // Remove any wrapper containers
   while (previewContainer.firstChild) {
     previewContainer.removeChild(previewContainer.firstChild);
   }
@@ -638,22 +666,52 @@ function updatePreview() {
   }
 }
 
+// MinSize changes - just update clamp
+minSizeEl.addEventListener('input', () => {
+  updateClamp();
+});
+
+// MaxSize changes - ALWAYS auto-fill minSize with rule (even if min is empty)
+maxSizeEl.addEventListener('input', () => {
+  const maxPx = +maxSizeEl.value;
+  
+  // Only auto-fill if maxPx is a valid number
+  if (maxPx && maxPx > 0) {
+    const suggestedMin = getMobileSize(maxPx);
+    minSizeEl.value = suggestedMin;
+  }
+  
+  updateClamp();
+});
+
+// Viewport changes - just update clamp
+minVWEl.addEventListener('input', () => {
+  updateClamp();
+});
+
+maxVWEl.addEventListener('input', () => {
+  updateClamp();
+});
+
+// Slider changes
 viewportSlider.addEventListener('input', (e) => {
   sliderValue.textContent = e.target.value + 'px';
   updatePreview();
 });
 
+// Copy function
 function copyClamp() {
   navigator.clipboard.writeText(currentClampValue);
-  copyBtn.textContent = '✓ Copied!';
+  copyBtn.textContent = 'COPIED';
   copyBtn.classList.add('copied');
   
   setTimeout(() => {
-    copyBtn.textContent = 'Copy';
+    copyBtn.textContent = 'COPY';
     copyBtn.classList.remove('copied');
   }, 2000);
 }
 
+// Initial render
 updateClamp();
 </script>
 
