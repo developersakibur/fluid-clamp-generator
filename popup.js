@@ -104,5 +104,15 @@ radioButtons.forEach((radio) =>
 );
 resultEl.addEventListener("click", copyClamp);
 
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "COPY_AND_CLOSE") {
+    if (!currentClampValue) return;
+
+    navigator.clipboard.writeText(currentClampValue).then(() => {
+      window.close();
+    });
+  }
+});
+
 // Initial render
 updateMinSize();

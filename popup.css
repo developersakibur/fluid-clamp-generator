@@ -75,10 +75,6 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
 .radio-grid {
   display: flex;
   gap: 0;
@@ -130,20 +126,20 @@ input[type="number"] {
   background: #2a2a2a;
   border: 2px solid #3a3a3a;
   border-radius: 8px;
-  padding: 24px 20px;
+  padding: 10px 10px;
   font-family: "Poppins", "Courier New", monospace;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
   transition: all 0.2s;
   word-break: break-all;
-  min-height: 80px;
+  min-height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  line-height: 1.6;
+  line-height: 1;
   width: 100%;
 }
 

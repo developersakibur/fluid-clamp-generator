@@ -10,5 +10,22 @@
     "default_popup": "popup.html",
     "default_title": "clamp() Generator",
     "default_icon": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "open-clamp": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Z"
+      },
+      "description": "Open clamp generator"
+    },
+    "copy-and-close": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X"
+      },
+      "description": "Copy clamp and close popup"
+    }
   }
 }
