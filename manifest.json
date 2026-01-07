@@ -25,7 +25,13 @@
       "suggested_key": {
         "default": "Ctrl+Shift+X"
       },
-      "description": "Copy clamp and close popup"
+      "description": "Copy clamp and close"
+    },
+    "switch-radio": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S"
+      },
+      "description": "Switch property type"
     }
   }
 }
