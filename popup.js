@@ -234,7 +234,6 @@ configMaxVp.addEventListener("input", saveConfigFromInputs);
 
 resultEl.addEventListener("click", copyClamp);
 
-// Mouse wheel scroll on focused inputs
 function handleWheel(e, inputEl) {
   if (document.activeElement === inputEl) {
     e.preventDefault();
