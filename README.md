@@ -259,6 +259,6 @@ None currently. [Report an issue](https://github.com/yourusername/fluid-clamp-ge
 
 ---
 
-**Made with 💙 by [Your Name]**
+**Made with 💙 by [Sakibur Rahman]**
 
 ⭐ Star this repo if it helps your workflow!
