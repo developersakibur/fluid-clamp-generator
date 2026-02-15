@@ -1,6 +1,6 @@
 // Default configurations
 const DEFAULT_CONFIGS = {
-  text: { minValue: 14, minVp: 16, maxValue: 54, maxVp: 72 },
+  text: { minValue: 14, minVp: 16, maxValue: 40, maxVp: 72 },
   padding: { minValue: 15, minVp: 20, maxValue: 55, maxVp: 100 }
 };
 
