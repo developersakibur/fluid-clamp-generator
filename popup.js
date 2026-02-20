@@ -1,3 +1,9 @@
+/**
+ * Created by developersakibur
+ */
+
+const BRAND_NAME = "developersakibur";
+
 // Default configurations
 const DEFAULT_CONFIGS = {
   text: { minValue: 14, minVp: 16, maxValue: 40, maxVp: 72 },

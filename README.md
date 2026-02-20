@@ -1,9 +1,10 @@
-# Fluid Clamp Generator
+# Fluid Clamp Generator by developersakibur
 
 > A Chrome extension for generating CSS `clamp()` values with intelligent mobile-to-desktop scaling
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-blue?logo=google-chrome)](https://chrome.google.com/webstore)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Brand](https://img.shields.io/badge/Brand-developersakibur-00ffff)](https://github.com/developersakibur)
 
 ## 🎯 Why This Extension?
 
@@ -197,7 +198,7 @@ fluid-clamp-generator/
 ├── popup.html         # Extension popup interface
 ├── popup.css          # Styling
 ├── popup.js           # Core logic
-├── icon.png          # Extension icon (128×128)
+├── developersakibur-icon.png          # Extension icon (128×128)
 └── README.md         # This file
 ```
 
@@ -259,6 +260,6 @@ None currently. [Report an issue](https://github.com/yourusername/fluid-clamp-ge
 
 ---
 
-**Made with 💙 by [Sakibur Rahman]**
+**Made with 💙 by [developersakibur](https://github.com/developersakibur)**
 
 ⭐ Star this repo if it helps your workflow!
