@@ -5,7 +5,7 @@ const DEFAULT_CONFIGS = {
 };
 
 const DEFAULT_VIEWPORT = {
-  minWidth: 320,
+  minWidth: 375,
   maxWidth: 1440
 };
 
