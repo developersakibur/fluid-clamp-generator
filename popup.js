@@ -183,16 +183,14 @@ function saveViewportSettings() {
 
 // Get mobile size calculation
 function getMobileSize(desktopPx, propertyType) {
-  if (!desktopPx || desktopPx < 1) return 1;
-  
-  if (desktopPx < 10) {
-    return Math.max(desktopPx - 1, 1);
-  }
+  const isNegative = desktopPx < 0;
+  const absPx = Math.abs(desktopPx);
   
   const selectedRadio = document.querySelector(`input[name="propertyType"][value="${propertyType}"]`);
   
   if (!selectedRadio || !selectedRadio.dataset.minVp) {
-    return Math.round(desktopPx * 0.75);
+    const result = Math.round(absPx * 0.75);
+    return isNegative ? -result : result;
   }
   
   const minVP = parseInt(selectedRadio.dataset.minVp);
@@ -201,21 +199,24 @@ function getMobileSize(desktopPx, propertyType) {
   const maxValue = parseInt(selectedRadio.dataset.maxValue);
   const smallSubtract = Math.abs(minVP - minValue);
   
-  if (desktopPx < minVP) {
-    return Math.max(desktopPx - smallSubtract, 1);
+  let result;
+  if (absPx < minVP) {
+    result = absPx - smallSubtract;
+  } else {
+    const ratio = (absPx - minVP) / (maxVP - minVP);
+    result = minValue + ratio * (maxValue - minValue);
   }
   
-  const ratio = (desktopPx - minVP) / (maxVP - minVP);
-  const mobileSize = minValue + ratio * (maxValue - minValue);
-  
-  return Math.round(mobileSize);
+  const finalResult = Math.round(result);
+  return isNegative ? -finalResult : finalResult;
 }
 
 function updateMinSize() {
-  const maxPx = +maxSizeEl.value;
+  const maxPxValue = maxSizeEl.value.trim();
   const selectedProperty = document.querySelector('input[name="propertyType"]:checked').value;
 
-  if (maxPx && maxPx.toString().length >= 2) {
+  if (maxPxValue !== "") {
+    const maxPx = parseFloat(maxPxValue);
     const calculatedMin = getMobileSize(maxPx, selectedProperty);
     minSizeEl.value = calculatedMin;
     updateClamp();
@@ -223,40 +224,104 @@ function updateMinSize() {
 }
 
 function updateClamp() {
-  const minVW = +minVWEl.value;
-  const maxVW = +maxVWEl.value;
-  const minPx = +minSizeEl.value;
-  const maxPx = +maxSizeEl.value;
+  const minVWValue = minVWEl.value.trim();
+  const maxVWValue = maxVWEl.value.trim();
+  const minPxValue = minSizeEl.value.trim();
+  const maxPxValue = maxSizeEl.value.trim();
 
   resultEl.classList.remove("copied");
 
-  if (!minVW || !maxVW || !minPx || !maxPx) {
-    resultEl.innerHTML = '<span class="error-message">Enter max values</span>';
+  if (minVWValue === "" || maxVWValue === "" || minPxValue === "" || maxPxValue === "") {
+    resultEl.innerHTML = '<span class="error-message">Enter values</span>';
     currentClampValue = "";
     return;
   }
 
-  const slope = (maxPx - minPx) / (maxVW - minVW);
-  const vwVal = (slope * 100).toFixed(2);
-  const interceptPx = minPx - slope * minVW;
+  const minVW = parseFloat(minVWValue);
+  const maxVW = parseFloat(maxVWValue);
+  const minPx = parseFloat(minPxValue);
+  const maxPx = parseFloat(maxPxValue);
 
-  currentClampValue = `clamp(${minPx}px, ${interceptPx.toFixed(2)}px + ${vwVal}vw, ${maxPx}px)`;
-  resultEl.textContent = currentClampValue;
+  if (maxVW === minVW) {
+    resultEl.innerHTML = '<span class="error-message">Viewport widths must differ</span>';
+    currentClampValue = "";
+    return;
+  }
+
+  // Check if we should use the "calc(-1 * clamp(...))" pattern for negative values
+  const bothNegative = minPx < 0 && maxPx < 0;
+
+  if (bothNegative) {
+    // Work with positive versions for the internal clamp calculation
+    const absMinPx = Math.abs(minPx);
+    const absMaxPx = Math.abs(maxPx);
+    
+    const slope = (absMaxPx - absMinPx) / (maxVW - minVW);
+    const vwVal = (slope * 100).toFixed(2);
+    const interceptPx = absMinPx - slope * minVW;
+    
+    const actualMin = Math.min(absMinPx, absMaxPx);
+    const actualMax = Math.max(absMinPx, absMaxPx);
+    
+    const innerValuePositive = `${actualMin}px, ${interceptPx.toFixed(2)}px + ${vwVal}vw, ${actualMax}px`;
+    currentClampValue = `calc(-1 * clamp(${innerValuePositive}))`;
+    resultEl.textContent = `-1 * (${innerValuePositive})`;
+  } else {
+    // Standard clamp logic for positive or mixed values
+    const slope = (maxPx - minPx) / (maxVW - minVW);
+    const vwVal = (slope * 100).toFixed(2);
+    const interceptPx = minPx - slope * minVW;
+    
+    const actualMin = Math.min(minPx, maxPx);
+    const actualMax = Math.max(minPx, maxPx);
+    
+    const innerValue = `${actualMin}px, ${interceptPx.toFixed(2)}px + ${vwVal}vw, ${actualMax}px`;
+    currentClampValue = `clamp(${innerValue})`;
+    resultEl.textContent = innerValue;
+  }
 }
 
 function copyClamp() {
   if (!currentClampValue) return;
 
-  navigator.clipboard.writeText(currentClampValue)
-    .then(() => {
-      resultEl.classList.add("copied");
-      setTimeout(() => {
-        resultEl.classList.remove("copied");
-      }, 1500);
-    })
-    .catch((err) => {
-      console.error("Failed to copy:", err);
-    });
+  // Modern clipboard API as primary
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(currentClampValue)
+      .then(() => showCopiedState())
+      .catch(() => fallbackCopy(currentClampValue));
+  } else {
+    fallbackCopy(currentClampValue);
+  }
+}
+
+function fallbackCopy(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  
+  // Ensure it's not visible but part of the document
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  textArea.style.top = "0";
+  document.body.appendChild(textArea);
+  
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    showCopiedState();
+  } catch (err) {
+    console.error("Fallback copy failed", err);
+  }
+  
+  document.body.removeChild(textArea);
+}
+
+function showCopiedState() {
+  resultEl.classList.add("copied");
+  setTimeout(() => {
+    resultEl.classList.remove("copied");
+  }, 1500);
 }
 
 // Toggle config panel
@@ -296,18 +361,14 @@ function handleWheel(e, inputEl) {
   if (document.activeElement === inputEl) {
     e.preventDefault();
     const currentValue = parseInt(inputEl.value) || 0;
-    const min = parseInt(inputEl.min) || -Infinity;
-    const max = parseInt(inputEl.max) || Infinity;
+    const min = parseInt(inputEl.min);
+    const max = parseInt(inputEl.max);
     
-    let newValue;
+    let newValue = e.deltaY < 0 ? currentValue + 1 : currentValue - 1;
     
-    // Special case for maxSize: wrap from min to max
-    if (inputEl.id === 'maxSize' && e.deltaY > 0 && currentValue === min) {
-      newValue = 100;
-    } else {
-      newValue = e.deltaY < 0 ? currentValue + 1 : currentValue - 1;
-      newValue = Math.max(min, Math.min(max, newValue));
-    }
+    // Apply bounds if they exist
+    if (!isNaN(min)) newValue = Math.max(min, newValue);
+    if (!isNaN(max)) newValue = Math.min(max, newValue);
     
     inputEl.value = newValue;
     inputEl.dispatchEvent(new Event('input'));
