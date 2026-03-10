@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "clamp() Generator",
-  "version": "1.0",
+  "version": "1.1",
   "author": "developersakibur",
   "brand": "developersakibur",
   "description": "Generate fluid CSS clamp() values",
