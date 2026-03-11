@@ -302,3 +302,85 @@ input[type="number"]::-webkit-outer-spin-button {
 .clamp-output .error-message {
   color: #f87171;
 }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.vp-badge-small {
+  font-family: "JetBrains Mono", monospace;
+  background: rgba(0, 255, 255, 0.06);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #00ffff;
+  white-space: nowrap;
+  min-width: 52px;
+  text-align: center;
+}
+
+.slider-wrap-preview {
+  position: relative;
+  flex: 1;
+  padding: 4px 0;
+}
+
+.track-bg-preview {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #1e1e22;
+  border-radius: 4px;
+  transform: translateY(-50%);
+}
+
+.track-fill-preview {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #06b6d4, #00ffff);
+  border-radius: 4px;
+  transform: translateY(-50%);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+}
+
+input[type="range"]#vpPreviewSlider {
+  position: relative;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 25px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0 !important;
+}
+
+input[type="range"]#vpPreviewSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  background: #00ffff;
+  border: 2px solid #0a0a0b;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2), 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+input[type="range"]#vpPreviewSlider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(0, 255, 255, 0.25), 0 0 16px rgba(0, 255, 255, 0.5);
+  transform: scale(1.15);
+}
+
+input[type="range"]#vpPreviewSlider:active::-webkit-slider-thumb {
+  transform: scale(0.92);
+  box-shadow: 0 0 0 5px rgba(0, 255, 255, 0.15), 0 0 20px rgba(0, 255, 255, 0.6);
+}

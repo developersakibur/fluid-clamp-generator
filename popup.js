@@ -28,6 +28,10 @@ const configMaxValue = document.getElementById("configMaxValue");
 const configMaxVp = document.getElementById("configMaxVp");
 const configToggle = document.getElementById("configToggle");
 const configSection = document.querySelector(".config-section");
+const vpPreviewSlider = document.getElementById("vpPreviewSlider");
+const sliderTrackFill = document.getElementById("sliderTrackFill");
+const sliderCurrentVp = document.getElementById("sliderCurrentVp");
+const sliderCurrentClamp = document.getElementById("sliderCurrentClamp");
 
 let currentClampValue = "";
 let configs = { ...DEFAULT_CONFIGS };
@@ -279,6 +283,7 @@ function updateClamp() {
     currentClampValue = `clamp(${innerValue})`;
     resultEl.textContent = innerValue;
   }
+  updateSliderPreview();
 }
 
 function copyClamp() {
@@ -375,6 +380,37 @@ function handleWheel(e, inputEl) {
   }
 }
 
+function calcClampAtVp(vw) {
+  const minPx = parseFloat(minSizeEl.value);
+  const maxPx = parseFloat(maxSizeEl.value);
+  const minVW = parseFloat(minVWEl.value) || DEFAULT_VIEWPORT.minWidth;
+  const maxVW = parseFloat(maxVWEl.value) || DEFAULT_VIEWPORT.maxWidth;
+
+  if (isNaN(minPx) || isNaN(maxPx)) return "—";
+
+  const slope = (maxPx - minPx) / (maxVW - minVW);
+  const intercept = minPx - slope * minVW;
+  const preferred = intercept + slope * vw;
+  const clampMin = Math.min(minPx, maxPx);
+  const clampMax = Math.max(minPx, maxPx);
+  return Math.min(Math.max(preferred, clampMin), clampMax).toFixed(2);
+}
+
+function updateSliderPreview() {
+  const minVW = parseFloat(minVWEl.value) || DEFAULT_VIEWPORT.minWidth;
+  const maxVW = parseFloat(maxVWEl.value) || DEFAULT_VIEWPORT.maxWidth;
+  const vw = parseFloat(vpPreviewSlider.value);
+
+  vpPreviewSlider.min = minVW;
+  vpPreviewSlider.max = maxVW;
+
+  const percent = (vw - minVW) / (maxVW - minVW) * 100;
+  sliderTrackFill.style.width = Math.max(0, Math.min(100, percent)) + "%";
+
+  sliderCurrentVp.textContent = vw;
+  sliderCurrentClamp.textContent = calcClampAtVp(vw);
+}
+
 minSizeEl.addEventListener("wheel", (e) => handleWheel(e, minSizeEl));
 maxSizeEl.addEventListener("wheel", (e) => handleWheel(e, maxSizeEl));
 configMinValue.addEventListener("wheel", (e) => handleWheel(e, configMinValue));
@@ -383,6 +419,7 @@ configMaxValue.addEventListener("wheel", (e) => handleWheel(e, configMaxValue));
 configMaxVp.addEventListener("wheel", (e) => handleWheel(e, configMaxVp));
 minVWEl.addEventListener("wheel", (e) => handleWheel(e, minVWEl));
 maxVWEl.addEventListener("wheel", (e) => handleWheel(e, maxVWEl));
+vpPreviewSlider.addEventListener("input", updateSliderPreview);
 
 // Initialize on load
 init();
